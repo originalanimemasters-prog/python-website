@@ -4,6 +4,12 @@ from django.urls import include, path
 urlpatterns = [
     path("admin/", admin.site.urls),
 
-    # All API routes
-    path("api/", include("apps.accounts.urls")),
+    # Authentication APIs
+    path("api/auth/", include("apps.accounts.urls")),
+
+    # Problems APIs
+    path("api/problems/", include("apps.problems.urls")),
+
+    # Health Check API
+    path("", include("apps.core.urls")),
 ]

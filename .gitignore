@@ -61,3 +61,49 @@ db.sqlite3
 # Media & Static
 media/
 staticfiles/
+
+# Logs
+*.log
+logs/
+
+# OS Files
+Thumbs.db
+
+# Python Version
+.python-version
+
+# Environment Variables
+.env.production
+.env.development
+
+# Migrations Cache
+**/__pycache__/
+
+# Coverage
+.coverage.*
+coverage.xml
+
+# Ruff
+.ruff_cache/
+
+# MyPy
+.mypy_cache/
+
+# Pyright
+.pyright/
+
+# Pyre
+.pyre/
+
+# VS Code Testing
+.history/
+
+# Docker
+*.pid
+
+# Backup Files
+*.bak
+*.tmp
+
+# Local PostgreSQL Dumps
+*.sql
