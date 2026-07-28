@@ -1,0 +1,29 @@
+{
+  "name": "devforge",
+  "version": "1.0.0",
+  "description": "A unified platform combining coding practice, backend challenges, online judge, project/snippet sharing, technical blogging, community features, and contests.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+      "frontend": "cd frontend && npm run dev",
+      "backend": "cd backend && python manage.py runserver",
+      "dev": "concurrently \"npm run backend\" \"npm run frontend\""
+    },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/originalanimemasters-prog/python-website.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/originalanimemasters-prog/python-website/issues"
+  },
+  "homepage": "https://github.com/originalanimemasters-prog/python-website#readme",
+  "devDependencies": {
+    "concurrently": "^10.0.4"
+  }
+}

@@ -6,6 +6,9 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import HomePage from "@/pages/Home/HomePage";
 import LoginPage from "@/pages/Login/LoginPage";
 import SignupPage from "@/pages/Signup/SignupPage";
+import VerifyEmailPage from "@/pages/VerifyEmail/VerifyEmailPage";
+import ForgotPasswordPage from "@/pages/ForgotPassword/ForgotPasswordPage";
+import ResetPasswordPage from "@/pages/ResetPassword/ResetPasswordPage";
 import DashboardPage from "@/pages/Dashboard/DashboardPage";
 import PythonRoadmapPage from "@/pages/Python/PythonRoadmapPage";
 import LessonPage from "@/pages/Lesson/LessonPage";
@@ -23,6 +26,9 @@ export const router = createBrowserRouter([
       { path: ROUTES.home, element: <HomePage /> },
       { path: ROUTES.login, element: <LoginPage /> },
       { path: ROUTES.signup, element: <SignupPage /> },
+      { path: ROUTES.verifyEmail, element: <VerifyEmailPage /> },
+      { path: ROUTES.forgotPassword, element: <ForgotPasswordPage /> },
+      { path: ROUTES.resetPassword, element: <ResetPasswordPage /> },
       { path: "/learn/:moduleSlug", element: <PythonRoadmapPage /> },
       { path: "/learn/:moduleSlug/lesson/:lessonSlug", element: <LessonPage /> },
       { path: "/learn/:moduleSlug/quiz/:quizId", element: <QuizPage /> },

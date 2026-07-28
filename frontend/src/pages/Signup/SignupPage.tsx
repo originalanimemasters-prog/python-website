@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Card, CardContent } from "@/components/ui/Card";
-import { useAuth } from "@/context/AuthContext";
+import { register as registerUser } from "@/services/api/auth.service";
 import { ROUTES } from "@/utils/constants";
 
 const signupSchema = z
@@ -27,7 +27,6 @@ type SignupForm = z.infer<typeof signupSchema>;
 
 export default function SignupPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { signIn } = useAuth();
   const navigate = useNavigate();
 
   const {
@@ -36,13 +35,30 @@ export default function SignupPage() {
     formState: { errors },
   } = useForm<SignupForm>({ resolver: zodResolver(signupSchema) });
 
-  const onSubmit = async () => {
-    setIsSubmitting(true);
-    // Mock auth delay — replace with a real mutation once /auth/register exists.
-    await new Promise((r) => setTimeout(r, 700));
-    setIsSubmitting(false);
-    signIn();
-    navigate(ROUTES.dashboard);
+  const onSubmit = async (data: SignupForm) => {
+    try {
+      setIsSubmitting(true);
+
+      await registerUser({
+        username: data.name,
+        email: data.email,
+        password: data.password,
+      });
+
+      alert(
+        "Account created successfully!\n\nPlease verify your email before logging in."
+      );
+
+      navigate(ROUTES.login);
+        } catch (error: any) {
+        alert(
+        error?.response?.data?.email?.[0] ||
+        error?.response?.data?.username?.[0] ||
+        "Registration failed."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

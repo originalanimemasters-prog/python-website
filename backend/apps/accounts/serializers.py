@@ -80,21 +80,28 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
+    email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
-        username = attrs.get("username")
+        email = attrs.get("email")
         password = attrs.get("password")
 
+        user = User.objects.filter(email=email).first()
+
+        if not user:
+            raise serializers.ValidationError(
+                "Invalid email or password."
+            )
+
         user = authenticate(
-            username=username,
+            username=user.username,
             password=password,
         )
 
         if not user:
             raise serializers.ValidationError(
-                "Invalid username or password."
+                "Invalid email or password."
             )
 
         if not user.is_verified:
@@ -109,7 +116,6 @@ class LoginSerializer(serializers.Serializer):
             "access": str(refresh.access_token),
             "user": UserSerializer(user).data,
         }
-
 
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField()
