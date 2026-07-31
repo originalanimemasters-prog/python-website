@@ -11,7 +11,7 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   accessToken: string | null;
   signIn: (access: string, refresh: string) => void;
-  signOut: () => void;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -36,12 +36,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessToken(access);
   };
 
-  const signOut = () => {
+  const signOut = async () => {
+  const refresh = localStorage.getItem("refresh_token");
+
+  try {
+    if (refresh) {
+      await fetch("http://127.0.0.1:8000/api/auth/logout/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          refresh,
+        }),
+      });
+    }
+  } catch (error) {
+    console.error("Logout failed:", error);
+  } finally {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
 
     setAccessToken(null);
-  };
+  }
+};
 
   const value = useMemo(
     () => ({

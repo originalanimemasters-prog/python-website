@@ -35,9 +35,10 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "django_filters",
 
-    "apps.accounts",
+    "apps.accounts.apps.AccountsConfig",
     
     "apps.problems",
+    "apps.python_course",
 ]
 
 MIDDLEWARE = [
@@ -123,7 +124,7 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
-        "rest_framework.permissions.AllowAny",
+    "rest_framework.permissions.IsAuthenticated",
     ),
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.ScopedRateThrottle",
@@ -134,11 +135,12 @@ REST_FRAMEWORK = {
         "rest_framework.filters.OrderingFilter",
     ],
     "DEFAULT_THROTTLE_RATES": {
-    "login": "10/min",
-    "register": "10/min",
-    "forgot_password": "5/min",
-    "reset_password": "5/min",
-    "verify_email": "10/min",
+    "login": "5/min",
+    "register": "3/hour",
+    "send_otp": "5/hour",
+    "verify_otp": "10/hour",
+    "forgot_password": "3/hour",
+    "reset_password": "5/hour",
     },
 }
 
@@ -279,3 +281,5 @@ if not DEBUG:
         raise RuntimeError(
             f"Missing required environment variables: {', '.join(missing)}"
         )
+
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")

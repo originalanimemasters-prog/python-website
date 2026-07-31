@@ -104,16 +104,21 @@ export interface Badge {
 }
 
 export interface UserProfile {
-  id: string;
-  name: string;
+  id: number;
+  username: string;
   email: string;
-  avatarUrl: string;
-  joinedAt: string;
+  initials: string;
+  avatarUrl: string | null;
+  role: string;
+  xp: number;
+  level: number;
   currentStreak: number;
   longestStreak: number;
   totalLessonsCompleted: number;
-  totalXp: number;
   badges: Badge[];
+  joinedAt: string;
+  isVerified: boolean;
+  isPremium: boolean;
 }
 
 export interface ActivityItem {

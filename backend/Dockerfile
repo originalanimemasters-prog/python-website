@@ -20,8 +20,9 @@ COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project
 COPY . .
+
+RUN chmod +x entrypoint.sh
 
 # Create non-root user
 RUN useradd -m appuser
@@ -31,4 +32,4 @@ USER appuser
 
 EXPOSE 8000
 
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
+ENTRYPOINT ["./entrypoint.sh"]

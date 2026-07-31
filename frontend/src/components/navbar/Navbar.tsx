@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { Menu, X, Flame, Sparkles } from "lucide-react";
+import { Menu, X, Flame, Sparkles, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Avatar, AvatarFallback } from "@/components/ui/Avatar";
 import { APP_NAME, ROUTES } from "@/utils/constants";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/utils/cn";
+import { useUserProfile } from "@/hooks/useUser";
 
 const PUBLIC_LINKS = [
   { label: "Learn", href: ROUTES.pythonRoadmap },
@@ -14,7 +15,13 @@ const PUBLIC_LINKS = [
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, signOut } = useAuth();
+  const { data: user } = useUserProfile();
+
+  const handleLogout = async () => {
+    await signOut();
+    window.location.href = ROUTES.login;
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/70 backdrop-blur-xl">
@@ -47,13 +54,22 @@ export function Navbar() {
           {isAuthenticated ? (
             <>
               <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Flame className="h-4 w-4 text-warning" /> 12
+                <Flame className="h-4 w-4 text-warning" />{user?.currentStreak ?? 0}
               </span>
               <Link to={ROUTES.profile}>
                 <Avatar className="h-9 w-9">
-                  <AvatarFallback>PR</AvatarFallback>
+                  <AvatarFallback>{user?.initials ?? "DF"}</AvatarFallback>
                 </Avatar>
               </Link>
+              <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="flex items-center gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </Button>
             </>
           ) : (
             <>

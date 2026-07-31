@@ -34,10 +34,7 @@ export default function ProfilePage() {
   }
 
   const completedLessons = getMockLessonSummaries("python").filter((l) => l.isCompleted);
-  const initials = user.name
-    .split(" ")
-    .map((n) => n[0])
-    .join("");
+  const initials = user.initials;
 
   return (
     <PageContainer className="flex flex-col gap-8 py-10">
@@ -47,7 +44,7 @@ export default function ProfilePage() {
             <AvatarFallback className="text-xl">{initials}</AvatarFallback>
           </Avatar>
           <div>
-            <h1 className="font-display text-2xl font-bold">{user.name}</h1>
+            <h1 className="font-display text-2xl font-bold">{user.username}</h1>
             <p className="text-sm text-muted-foreground">{user.email}</p>
             <p className="mt-1 text-xs text-muted-foreground">
               Joined {new Date(user.joinedAt).toLocaleDateString(undefined, { month: "long", year: "numeric" })}
@@ -60,7 +57,7 @@ export default function ProfilePage() {
         <StatCard icon={Flame} label="Current streak" value={`${user.currentStreak} days`} accent="text-warning" />
         <StatCard icon={Trophy} label="Longest streak" value={`${user.longestStreak} days`} accent="text-primary" />
         <StatCard icon={BookCheck} label="Lessons completed" value={user.totalLessonsCompleted} accent="text-success" />
-        <StatCard icon={Star} label="Total XP" value={user.totalXp.toLocaleString()} accent="text-accent" />
+        <StatCard icon={Star} label="Total XP" value={user.xp.toLocaleString()} accent="text-accent" />
       </div>
 
       <div>
@@ -91,7 +88,7 @@ export default function ProfilePage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="displayName">Display name</Label>
-              <Input id="displayName" defaultValue={user.name} />
+              <Input id="displayName" defaultValue={user.username} />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="profileEmail">Email</Label>

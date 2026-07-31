@@ -10,6 +10,9 @@ urlpatterns = [
     # Problems APIs
     path("api/problems/", include("apps.problems.urls")),
 
+    # Python Course APIs
+    path("api/python/", include("apps.python_course.urls")),
+
     # Health Check API
     path("", include("apps.core.urls")),
 ]

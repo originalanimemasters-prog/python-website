@@ -1,17 +1,12 @@
-from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model
-from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
-from django.urls import reverse
-from django.utils.encoding import force_bytes, force_str
-from django.utils.http import (
-    urlsafe_base64_decode,
-    urlsafe_base64_encode,
-)
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
+from .models import EmailOTP
+from django.utils import timezone
+from datetime import timedelta
 
 User = get_user_model()
+
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -33,32 +28,48 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
+        email = validated_data["email"]
+
+        otp = EmailOTP.objects.filter(
+            email=email,
+            purpose=EmailOTP.Purpose.SIGNUP,
+            is_used=True,
+        ).order_by("-created_at").first()
+
+        if not otp:
+            raise serializers.ValidationError(
+                {
+                "email": "Please verify your email first."
+                }
+            )
+
+        if otp.verified_at is None:
+            raise serializers.ValidationError(
+                {
+                "email": "Email verification is invalid."
+                }
+            )
+
+        if timezone.now() > otp.verified_at + timedelta(minutes=10):
+            otp.delete()
+
+            raise serializers.ValidationError(
+                {
+                    "email": (
+                        "Email verification has expired. "
+                        "Please verify again."
+                    )
+                }
+            )
+
         user = User.objects.create_user(**validated_data)
 
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        token = default_token_generator.make_token(user)
-
-        verification_url = (
-            f"{settings.FRONTEND_URL}"
-            f"/verify-email?uid={uid}&token={token}"
-        )
-
-        send_mail(
-            subject="Verify your DevForge account",
-            message=(
-                f"Hi {user.username},\n\n"
-                f"Please verify your email by clicking the link below:\n\n"
-                f"{verification_url}\n\n"
-                f"If you didn't create this account, "
-                f"please ignore this email."
-            ),
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            fail_silently=False,
-        )
+        user.is_verified = True
+        user.save(update_fields=["is_verified"])
+                   
+        otp.delete()
 
         return user
-
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -268,3 +279,50 @@ class ResetPasswordSerializer(serializers.Serializer):
             "message":
             "Password reset successfully."
         }
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    xp = serializers.IntegerField(source="progress.xp", read_only=True)
+
+    level = serializers.IntegerField(source="progress.level", read_only=True)
+
+    current_streak = serializers.IntegerField(
+        source="progress.current_streak",
+        read_only=True,
+    )
+
+    longest_streak = serializers.IntegerField(
+        source="progress.longest_streak",
+        read_only=True,
+    )
+    initials = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "username",
+            "email",
+            "role",
+            "is_verified",
+            "initials",
+            "xp",
+            "level",
+            "current_streak",
+            "longest_streak",
+            "created_at",
+        ]
+
+    def get_initials(self, obj):
+        if obj.username:
+            return obj.username[:2].upper()
+        return "DF"
+
+class SendOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+class VerifyOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    otp = serializers.CharField(
+        min_length=6,
+        max_length=6,
+    )
