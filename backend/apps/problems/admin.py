@@ -2,7 +2,6 @@ from django.contrib import admin
 
 from apps.problems.models import (
     Company,
-    Topic,
     InterviewExample,
     InterviewHint,
     InterviewQuestion,
@@ -42,27 +41,6 @@ class TagAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at", "updated_at")
     list_per_page = 50
     
-@admin.register(Topic)
-class TopicAdmin(admin.ModelAdmin):
-    list_display = (
-        "name",
-        "slug",
-        "created_at",
-    )
-    search_fields = (
-        "name",
-        "slug",
-    )
-    ordering = ("name",)
-    prepopulated_fields = {
-        "slug": ("name",)
-    }
-    readonly_fields = (
-        "created_at",
-        "updated_at",
-    )
-    list_per_page = 50
-
 
 # ==========================================================
 # Inlines

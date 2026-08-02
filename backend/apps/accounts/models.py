@@ -2,6 +2,26 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
 from datetime import timedelta
+from apps.subscriptions.services import SubscriptionService
+
+class User(AbstractUser):
+    class Role(models.TextChoices):
+        STUDENT = "student", "Student"
+        ADMIN = "admin", "Admin"
+
+    role = models.CharField(
+        max_length=20,
+        choices=Role.choices,
+        default=Role.STUDENT,
+    )
+
+    is_verified = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.username
 
 
 class User(AbstractUser):
@@ -22,6 +42,22 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    # ==========================
+    # Subscription Helpers
+    # ==========================
+
+    def has_active_subscription(self):
+        return SubscriptionService.has_active_subscription(self)
+
+    def subscription_days_remaining(self):
+        return SubscriptionService.days_remaining(self)
+
+    def subscription_status(self):
+        try:
+            return self.subscription.status
+        except Exception:
+            return None
 
 
 class UserProgress(models.Model):
@@ -95,3 +131,4 @@ class EmailOTP(models.Model):
 
     def __str__(self):
         return f"{self.email} ({self.purpose})"
+    

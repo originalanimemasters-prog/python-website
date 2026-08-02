@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "django_filters",
 
     "apps.accounts.apps.AccountsConfig",
+    "apps.subscriptions.apps.SubscriptionsConfig",
     
     "apps.problems",
     "apps.python_course",

@@ -1,5 +1,4 @@
 from apps.problems.models.company import Company
-from apps.problems.models.topic import Topic
 from apps.problems.models.tag import Tag
 
 from apps.problems.models.practice_question import PracticeQuestion
@@ -12,7 +11,6 @@ from apps.problems.models.test_case import PracticeTestCase, InterviewTestCase
 
 __all__ = [
     "Company",
-    "Topic",
     "Tag",
     "PracticeQuestion",
     "InterviewQuestion",

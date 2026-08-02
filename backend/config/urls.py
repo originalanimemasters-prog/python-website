@@ -6,6 +6,9 @@ urlpatterns = [
 
     # Authentication APIs
     path("api/auth/", include("apps.accounts.urls")),
+    
+    #subscription APIs
+    path("api/subscriptions/", include("apps.subscriptions.urls")),
 
     # Problems APIs
     path("api/problems/", include("apps.problems.urls")),
