@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+from django.core.validators import MinLengthValidator
 from django.db import models
 
 from .topic import Topic
@@ -14,7 +16,12 @@ class Lesson(models.Model):
         related_name="lessons",
     )
 
-    title = models.CharField(max_length=200)
+    title = models.CharField(
+        max_length=200,
+        validators=[
+            MinLengthValidator(3),
+        ],
+    )
     slug = models.SlugField(max_length=220)
 
     short_description = models.TextField(blank=True)
@@ -34,8 +41,42 @@ class Lesson(models.Model):
 
     class Meta:
         db_table = "course_lessons"
-        ordering = ["order"]
-        unique_together = ("topic", "slug")
+
+        ordering = ["topic", "order"]
+
+        verbose_name = "Lesson"
+        verbose_name_plural = "Lessons"
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["topic", "slug"],
+                name="unique_lesson_slug_per_topic",
+            ),
+            models.UniqueConstraint(
+                fields=["topic", "order"],
+                name="unique_lesson_order_per_topic",
+            ),
+        ]
 
     def __str__(self):
-        return self.title
+        return f"{self.topic.title} → {self.title}"
+    
+    def clean(self):
+        super().clean()
+
+        self.title = self.title.strip()
+
+        if not self.title:
+            raise ValidationError(
+                {
+                    "title": "Lesson title cannot be empty."
+                }
+            )
+            
+    def save(self, *args, **kwargs):
+        self.full_clean()
+
+        super().save(
+            *args,
+            **kwargs,
+        )

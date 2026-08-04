@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+from django.core.validators import MinLengthValidator
 from django.db import models
 
 from .lesson import Lesson
@@ -15,8 +17,13 @@ class Challenge(models.Model):
         related_name="challenge",
     )
 
-    title = models.CharField(max_length=200)
-
+    title = models.CharField(
+        max_length=200,
+        validators=[
+            MinLengthValidator(3),
+        ],
+    )
+    
     description = models.TextField()
 
     difficulty = models.CharField(
@@ -56,5 +63,41 @@ class Challenge(models.Model):
     class Meta:
         db_table = "lesson_challenges"
 
+        verbose_name = "Challenge"
+        verbose_name_plural = "Challenges"
+
     def __str__(self):
-        return self.title
+        return (
+            f"{self.lesson.title} → "
+            f"{self.title}"
+        )
+    
+    def clean(self):
+        super().clean()
+
+        self.title = self.title.strip()
+
+        if not self.title:
+            raise ValidationError(
+                {
+                    "title": (
+                        "Challenge title cannot be empty."
+                    )
+                }
+            )
+        self.description = self.description.strip()
+        
+        if not self.description.strip():
+            raise ValidationError(
+            {
+            "description":
+            "Description cannot be empty."
+            }
+        )
+    def save(self, *args, **kwargs):
+        self.full_clean()
+
+        super().save(
+            *args,
+            **kwargs,
+        )

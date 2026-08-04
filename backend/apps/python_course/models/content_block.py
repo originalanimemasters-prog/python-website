@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.core.exceptions import ValidationError
 from .lesson import Lesson
 
 
@@ -11,8 +11,6 @@ class ContentBlock(models.Model):
         NOTE = "note", "Note"
         TIP = "tip", "Tip"
         WARNING = "warning", "Warning"
-        QUIZ = "quiz", "Quiz"
-        CHALLENGE = "challenge", "Challenge"
         SUMMARY = "summary", "Summary"
 
     lesson = models.ForeignKey(
@@ -55,7 +53,54 @@ class ContentBlock(models.Model):
 
     class Meta:
         db_table = "lesson_content_blocks"
-        ordering = ["order"]
+
+        ordering = ["lesson", "order"]
+
+        verbose_name = "Content Block"
+        verbose_name_plural = "Content Blocks"
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["lesson", "order"],
+                name="unique_content_block_order_per_lesson",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.lesson.title} - {self.get_block_type_display()}"
+    
+    
+    def clean(self):
+        super().clean()
+
+        if (
+            self.block_type == self.BlockType.IMAGE
+            and not self.image
+        ):
+            raise ValidationError(
+                {
+                    "image": (
+                        "Image block requires an image."
+                    )
+                }
+            )
+
+        if (
+            self.block_type != self.BlockType.IMAGE
+            and self.image
+        ):
+            raise ValidationError(
+                {
+                    "image": (
+                     "Only image blocks can contain images."
+                    )
+                }
+            )
+            
+    def save(self, *args, **kwargs):
+        self.full_clean()
+
+        super().save(
+            *args,
+            **kwargs,
+        )
